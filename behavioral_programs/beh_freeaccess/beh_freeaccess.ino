@@ -33,12 +33,15 @@ This program uses multiple dependencies (see protocol: for instructions on insta
 
  // spout / sol pins & parameters
   static byte num_spouts = 5; // should have this many values for each of the following vectors
+  static byte num_pumps = 2;
 
   // spout vectors (each element will correspond to a spout, add or remove elements based on system, default is setup for 5 spouts)
   static byte pinSol[] =                      {  4,  5,  6,  7,  8};
   static byte sol_duration[] =                { 30, 30, 30, 30, 30}; // calibrate to ~1.5µL / delivery
-  static byte servo_radial_degs [] =          {  0, 30, 60, 90,120};
-  static byte servo_retract_extended_degs[] = {180,180,180,180,180};
+  static byte pinPump[]      =                { 2,   3};
+  static byte pump_duration[]=                {200, 200};
+  static byte servo_radial_degs[] =           {  12, 44, 70, 97, 123};
+  static byte servo_retract_extended_degs[] = {1,1,1,1,1};
   static byte pinLickometer_ttl[] =           { 22, 22, 22, 22, 22};
   
   byte current_spout = 1; // set spout for session (1 to n, where n is the number of spouts on the system; used to index each vector above)
@@ -66,7 +69,7 @@ This program uses multiple dependencies (see protocol: for instructions on insta
 
 // servo retractable spout variables / parameters ------------------------------------------
   Servo servo_retract;
-  static byte servo_retract_retracted_deg = 160;
+  static byte servo_retract_retracted_deg = 75;
   unsigned long ts_servo_retract_retracted;
 
 // servo radial variable / parameters-------------------------------------------------------
@@ -85,6 +88,7 @@ This program uses multiple dependencies (see protocol: for instructions on insta
   unsigned long ts_start;
   unsigned long ts_sol_offset;
   unsigned long ts_sol_ttl_off;
+  unsigned long ts_pump_offset;
   unsigned long ts_lickomter_ttl_off; 
   unsigned long ts_lick_gate_open = 0;
   unsigned long session_end_ts;
@@ -112,6 +116,10 @@ void setup() {
   for (uint8_t i_sol = 0; i_sol < num_spouts; i_sol++) { // for each solenoid
     pinMode(pinSol[i_sol], OUTPUT);                       // define sol as output
     pinMode(pinLickometer_ttl[i_sol], OUTPUT);           // 
+  }
+
+  for (uint8_t i_pump = 0; i_pump < num_pumps; i_pump++) { // for each pump
+    pinMode(pinPump[i_pump], OUTPUT);                       // define pump as output 
   } 
 
  // engage servo brake prior to session start
@@ -179,6 +187,17 @@ void loop() {
     ts_sol_offset = 0;                                       // reset solenoid offset time to close if statement
   }
 
+  // turn off pumps---------------------------
+  if (ts >= ts_pump_offset && ts_pump_offset != 0) {           // if time is after pump offset time
+    for (uint8_t i_pump = 0; i_pump < num_pumps; i_pump++) { // for each pump
+      digitalWrite(pinPump[i_pump], LOW);
+
+      if (i_pump == num_pumps - 1) {
+        Serial.print(17); Serial.print(" "); Serial.println(ts); // print pump offset
+        ts_pump_offset = 0;    // reset pump offset time to close if statement
+      }
+    }
+  }
  // turn off ttls for external time stamps ------------------------
   // lick---
   if (ts >= ts_lickomter_ttl_off && ts_lickomter_ttl_off != 0) {
@@ -241,6 +260,11 @@ void loop() {
       ts_sol_offset = ts + sol_duration[current_spout - 1];                    // set solenoid close time
     }
 
+      digitalWrite(pinPump[lick - 1], HIGH);                           // open pump for touched spout
+      Serial.print(50 + lick); Serial.print(" "); Serial.println(ts); // print pump opening onset
+      
+      ts_pump_offset = ts + pump_duration[lick - 1];                    // set pump close time
+      
     lick_gate = 0; // close lick gate until tm_lick_latency_min ms have passed
 
     if (tm_lick_latency_min > sol_duration[lick - 1]) {

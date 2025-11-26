@@ -1,0 +1,57 @@
+#######################################
+# Syntax Coloring Map For OHRBehavior
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+LickDetector	KEYWORD1
+ServoController	KEYWORD1
+SolenoidController	KEYWORD1
+RotaryEncoder	KEYWORD1
+SessionManager	KEYWORD1
+TTLManager	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+begin	KEYWORD2
+checkLick	KEYWORD2
+setThresholds	KEYWORD2
+getFilteredData	KEYWORD2
+isLickGateOpen	KEYWORD2
+closeLickGate	KEYWORD2
+openLickGate	KEYWORD2
+initBrake	KEYWORD2
+initRetract	KEYWORD2
+initRadial	KEYWORD2
+engageBrake	KEYWORD2
+disengageBrake	KEYWORD2
+extendSpout	KEYWORD2
+retractSpout	KEYWORD2
+rotateToSpout	KEYWORD2
+rotateToSweep	KEYWORD2
+openSolenoid	KEYWORD2
+closeAll	KEYWORD2
+getDuration	KEYWORD2
+getRightRotations	KEYWORD2
+getLeftRotations	KEYWORD2
+getPosition	KEYWORD2
+resetCounters	KEYWORD2
+handleInterruptA	KEYWORD2
+handleInterruptB	KEYWORD2
+update	KEYWORD2
+getTimestamp	KEYWORD2
+isSessionComplete	KEYWORD2
+waitForStart	KEYWORD2
+logEvent	KEYWORD2
+logParameter	KEYWORD2
+setEndTime	KEYWORD2
+addPin	KEYWORD2
+sendPulse	KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################

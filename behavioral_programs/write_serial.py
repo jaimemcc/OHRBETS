@@ -36,10 +36,17 @@ def read_serial():
             running = 0
    
 # **parameters** -------------------------------------
-COMPORT = "COM11";
+COMPORT = "COM3";
 BAUDRATE = 115200;
 
-subject='test'
+subject='FTP06'
+# subject='FTP01'
+# subject='FTP02'
+# subject='FTP03'
+# subject='FTP04'
+# subject='FTP05'
+# subject='FTP06'
+
 
 # excecution -----------------------------------------
 # output fn format: yyyy_mm_dd_subject

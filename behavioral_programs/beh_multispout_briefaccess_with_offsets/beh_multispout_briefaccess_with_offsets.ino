@@ -389,17 +389,17 @@ void loop() {
    // check state of sensor to see if it is currently touched
     currtouched = cap.touched();
 
-   // check to see if touch onset occured
+   // check to see if touch offset occurred FIRST (before updating lasttouched)
     for (uint8_t i = current_spout + 1; i <= current_spout + 1; i++) { // for each sensor (change the maximum i if more touch sensors are added)
-      if ((currtouched & _BV(i)) && !(lasttouched & _BV(i)) ) { // if touched now but not previously
-        lick = i;                                               // flag lick
+      if (!(currtouched & _BV(i)) && (lasttouched & _BV(i)) ) { // if NOT touched now but was previously
+        offset = i;                                               // flag offset
       }
     }
 
-   // check to see if touch offset occured
+   // check to see if touch onset occurred
     for (uint8_t i = current_spout + 1; i <= current_spout + 1; i++) { // for each sensor (change the maximum i if more touch sensors are added)
-      if (!(currtouched & _BV(i)) && (lasttouched & _BV(i)) ) { // if touched now but not previously
-        offset = i;                                               // flag lick
+      if ((currtouched & _BV(i)) && !(lasttouched & _BV(i)) ) { // if touched now but not previously
+        lick = i;                                               // flag lick
       }
     }
 
@@ -411,7 +411,12 @@ void loop() {
   // check state of sensor to see if it is currently touched
    pinLickometer_state = digitalRead(pinLickometer);
 
-  // check to see if touch onset occured
+  // check to see if touch offset occurred
+   if(pinLickometer_state < pinLickometer_state_previous) { // if NOT touched now but was previously
+        offset = current_spout+1;                            // flag offset
+   }
+
+  // check to see if touch onset occurred
    if(pinLickometer_state > pinLickometer_state_previous) { // if touched now but not previously
         lick = current_spout+1;                             // flag lick
    }
@@ -420,8 +425,14 @@ void loop() {
    pinLickometer_state_previous = pinLickometer_state;
  }
 
-  // programmed consequences to licking
-  if (lick > 0) { // if lick has occured
+  // Handle lick offset FIRST (before resetting lick flag)
+  if (offset > 0) { // if lick offset has occurred
+    Serial.print(80 + offset); Serial.print(" "); Serial.println(ts);  // print lick offset
+    offset = 0; // reset offset flag to close if statement
+  }
+
+  // programmed consequences to lick onset
+  if (lick > 0) { // if lick has occurred
     if (lick_gate){
       Serial.print(30 + lick); Serial.print(" "); Serial.println(ts);  // print lick onset
     } else {
@@ -450,11 +461,6 @@ void loop() {
     }
     
     lick = 0; // reset lick flag to close if statement
-  }
-
-  if (offset > 0) { // if lick has occured
-    Serial.print(80 + offset); Serial.print(" "); Serial.println(ts);  // print lick offset
-    offset = 0; // reset lick flag to close if statement
   }
 
   // start access period------------
